@@ -6,28 +6,36 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { Mail, Loader2, ArrowLeft } from "lucide-react";
+import { Mail, Loader2, ArrowLeft, ShieldCheck } from "lucide-react";
 import { z } from "zod";
 
 // Form validation schema
 const authSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  otp: z.string().length(6, "OTP must be 6 digits").optional(),
 });
 
-type AuthMode = "signin" | "signup" | "reset";
+type AuthMode = "signin" | "signup" | "reset" | "mfa";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<AuthMode>("signin");
+  const [factorId, setFactorId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const validateForm = () => {
+  const validateForm = (includeMfa = false) => {
     try {
-      authSchema.parse({ email, password });
+      const formData = {
+        email,
+        password,
+        ...(includeMfa && { otp }),
+      };
+      authSchema.parse(formData);
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -54,6 +62,45 @@ const Auth = () => {
       
       if (error) throw error;
       
+      // Check if MFA is required
+      if (data.session?.user.factors?.[0]) {
+        setFactorId(data.session.user.factors[0].id);
+        setMode("mfa");
+        toast({
+          title: "MFA Required",
+          description: "Please enter the code sent to your email",
+        });
+        return;
+      }
+      
+      // Set session in localStorage for persistence
+      localStorage.setItem("supabase.auth.token", JSON.stringify(data));
+      
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMfaVerification = async () => {
+    if (!validateForm(true) || !factorId) return;
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        factor_id: factorId,
+        code: otp,
+        type: 'totp',
+      });
+
+      if (error) throw error;
+
       // Set session in localStorage for persistence
       localStorage.setItem("supabase.auth.token", JSON.stringify(data));
       
@@ -154,7 +201,7 @@ const Auth = () => {
                 variant="ghost"
                 size="icon"
                 className="absolute"
-                onClick={() => setMode("signin")}
+                onClick={() => mode === "mfa" ? setMode("signin") : setMode("signin")}
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -163,91 +210,121 @@ const Auth = () => {
               {mode === "signin" && "Welcome to SwiftMessage"}
               {mode === "signup" && "Create an Account"}
               {mode === "reset" && "Reset Password"}
+              {mode === "mfa" && "Two-Factor Authentication"}
             </span>
           </CardTitle>
           <CardDescription>
             {mode === "signin" && "Sign in to start chatting"}
             {mode === "signup" && "Sign up to join our community"}
             {mode === "reset" && "Enter your email to reset your password"}
+            {mode === "mfa" && "Enter the verification code sent to your email"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleEmailSignIn} className="space-y-4">
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="transition-all duration-200 focus:scale-[1.02]"
-            />
-            {mode !== "reset" && (
+          {mode === "mfa" ? (
+            <div className="space-y-4">
+              <div className="flex justify-center mb-4">
+                <ShieldCheck className="h-12 w-12 text-primary" />
+              </div>
               <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                type="text"
+                placeholder="Enter 6-digit code"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                maxLength={6}
+                className="text-center text-2xl tracking-[1em] font-mono"
+                required
+              />
+              <Button
+                className="w-full"
+                onClick={handleMfaVerification}
+                disabled={loading || otp.length !== 6}
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Verify"
+                )}
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={handleEmailSignIn} className="space-y-4">
+              <Input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="transition-all duration-200 focus:scale-[1.02]"
               />
-            )}
-            <div className="space-y-2">
-              {mode === "signin" && (
-                <>
+              {mode !== "reset" && (
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="transition-all duration-200 focus:scale-[1.02]"
+                />
+              )}
+              <div className="space-y-2">
+                {mode === "signin" && (
+                  <>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Sign In"
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setMode("signup")}
+                      className="w-full"
+                      disabled={loading}
+                    >
+                      Create Account
+                    </Button>
+                  </>
+                )}
+                {mode === "signup" && (
                   <Button
-                    type="submit"
+                    type="button"
+                    onClick={handleEmailSignUp}
                     className="w-full"
                     disabled={loading}
                   >
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      "Sign In"
+                      "Sign Up"
                     )}
                   </Button>
+                )}
+                {mode === "reset" && (
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={() => setMode("signup")}
+                    onClick={handlePasswordReset}
                     className="w-full"
                     disabled={loading}
                   >
-                    Create Account
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Send Reset Instructions"
+                    )}
                   </Button>
-                </>
-              )}
-              {mode === "signup" && (
-                <Button
-                  type="button"
-                  onClick={handleEmailSignUp}
-                  className="w-full"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "Sign Up"
-                  )}
-                </Button>
-              )}
-              {mode === "reset" && (
-                <Button
-                  type="button"
-                  onClick={handlePasswordReset}
-                  className="w-full"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "Send Reset Instructions"
-                  )}
-                </Button>
-              )}
-            </div>
-          </form>
+                )}
+              </div>
+            </form>
+          )}
 
-          {mode === "signin" && (
+          {mode === "signin" && !loading && (
             <>
               <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">
