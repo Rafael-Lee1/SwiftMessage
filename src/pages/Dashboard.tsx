@@ -1,10 +1,20 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { LogOut, MessageSquare, User } from 'lucide-react';
+import { 
+  LogOut, 
+  Monitor, 
+  Music2, 
+  Film, 
+  Gamepad2, 
+  Trophy,
+  HelpCircle,
+  User
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
 
 interface UserDetails {
   email?: string;
@@ -14,8 +24,49 @@ interface UserDetails {
   };
 }
 
+interface ChatRoom {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+const chatRooms: ChatRoom[] = [
+  {
+    id: 'technology',
+    name: 'Technology',
+    description: 'Discuss the latest tech trends and innovations',
+    icon: <Monitor className="h-6 w-6" />
+  },
+  {
+    id: 'sports',
+    name: 'Sports',
+    description: 'Chat about your favorite sports and teams',
+    icon: <Trophy className="h-6 w-6" />
+  },
+  {
+    id: 'music',
+    name: 'Music',
+    description: 'Share and discuss your favorite music',
+    icon: <Music2 className="h-6 w-6" />
+  },
+  {
+    id: 'movies',
+    name: 'Movies',
+    description: 'Talk about the latest films and classics',
+    icon: <Film className="h-6 w-6" />
+  },
+  {
+    id: 'games',
+    name: 'Games',
+    description: 'Connect with fellow gamers',
+    icon: <Gamepad2 className="h-6 w-6" />
+  }
+];
+
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
   useEffect(() => {
@@ -36,32 +87,46 @@ const Dashboard = () => {
     navigate('/auth');
   };
 
-  const goToChat = () => {
-    navigate('/chat');
+  const joinChatRoom = (roomId: string) => {
+    toast({
+      title: "Joining chat room",
+      description: `Connecting to ${roomId} room...`
+    });
+    navigate(`/chat/${roomId}`);
+  };
+
+  const goToSupport = () => {
+    toast({
+      title: "Support",
+      description: "Support feature coming soon!"
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex justify-end">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Real-Time Chat</h1>
           <Button
             variant="ghost"
             size="icon"
             onClick={handleSignOut}
             className="hover:bg-destructive/10"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-5 w-5" />
           </Button>
         </div>
 
-        <Card>
+        {/* Welcome Card */}
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle>Welcome back!</CardTitle>
             <CardDescription>
-              Here's your personal dashboard
+              Choose a chat room to start conversations
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent>
             <div className="flex items-center space-x-4">
               {userDetails?.user_metadata?.avatar_url ? (
                 <img 
@@ -79,19 +144,50 @@ const Dashboard = () => {
                 <p className="text-sm text-muted-foreground">{userDetails?.email}</p>
               </div>
             </div>
-
-            <div>
-              <Button
-                onClick={goToChat}
-                className="w-full"
-                size="lg"
-              >
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Go to Chat
-              </Button>
-            </div>
           </CardContent>
         </Card>
+
+        {/* Chat Rooms Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          {chatRooms.map((room) => (
+            <Card 
+              key={room.id}
+              className="transition-all hover:shadow-lg"
+            >
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    {room.icon}
+                  </div>
+                  <CardTitle className="text-xl">{room.name}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">{room.description}</p>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="w-full" 
+                  onClick={() => joinChatRoom(room.id)}
+                >
+                  Join Room
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <footer className="text-center">
+          <Button
+            variant="ghost"
+            onClick={goToSupport}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <HelpCircle className="mr-2 h-4 w-4" />
+            Need help?
+          </Button>
+        </footer>
       </div>
     </div>
   );
