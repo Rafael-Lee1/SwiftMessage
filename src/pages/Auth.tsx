@@ -24,7 +24,6 @@ const Auth = () => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<AuthMode>("signin");
-  const [factorId, setFactorId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -55,27 +54,32 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // First, sign in with email and password
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      if (error) throw error;
-      
-      // Check if MFA is required
-      if (data.session?.user.factors?.[0]) {
-        setFactorId(data.session.user.factors[0].id);
+      if (signInError) throw signInError;
+
+      // If MFA is required, send the verification email
+      if (signInData.session?.user) {
+        const { error: otpError } = await supabase.auth.signInWithOtp({
+          email,
+        });
+        
+        if (otpError) throw otpError;
+        
         setMode("mfa");
         toast({
-          title: "MFA Required",
-          description: "Please enter the code sent to your email",
+          title: "Verification Required",
+          description: "Please check your email for the verification code",
         });
         return;
       }
       
-      // Set session in localStorage for persistence
-      localStorage.setItem("supabase.auth.token", JSON.stringify(data));
-      
+      // No MFA required, proceed with sign in
+      localStorage.setItem("supabase.auth.token", JSON.stringify(signInData));
       navigate("/");
     } catch (error: any) {
       toast({
@@ -89,14 +93,14 @@ const Auth = () => {
   };
 
   const handleMfaVerification = async () => {
-    if (!validateForm(true) || !factorId) return;
+    if (!validateForm(true)) return;
 
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.verifyOtp({
-        factor_id: factorId,
-        code: otp,
-        type: 'email' // Changed from 'totp' to 'email' to match Supabase's accepted types
+        email,
+        token: otp,
+        type: 'email',
       });
 
       if (error) throw error;
