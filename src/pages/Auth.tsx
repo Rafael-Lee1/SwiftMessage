@@ -96,7 +96,7 @@ const Auth = () => {
       const { data, error } = await supabase.auth.verifyOtp({
         factor_id: factorId,
         code: otp,
-        type: 'totp',
+        type: 'email' // Changed from 'totp' to 'email' to match Supabase's accepted types
       });
 
       if (error) throw error;
