@@ -117,7 +117,7 @@ const ChatWindow = () => {
     setNewMessage('');
     setSelectedFile(null);
 
-    // If message starts with "/ai", send to AI assistant
+    // Handle AI chat with improved error handling
     if (newMessage.trim().toLowerCase().startsWith('/ai')) {
       setIsBotTyping(true);
       try {
@@ -137,10 +137,20 @@ const ChatWindow = () => {
         setMessages((prev) => [...prev, botMessage]);
       } catch (error) {
         toast({
-          title: 'Error getting AI response',
-          description: 'Please try again',
+          title: 'AI Assistant Error',
+          description: 'Could not get a response. Please try again.',
           variant: 'destructive',
         });
+        
+        // Add error message to chat
+        const errorMessage: Message = {
+          id: Date.now().toString(),
+          text: 'Sorry, I encountered an error. Please try asking again.',
+          sender: 'bot',
+          timestamp: new Date(),
+        };
+        
+        setMessages((prev) => [...prev, errorMessage]);
       } finally {
         setIsBotTyping(false);
       }

@@ -15,14 +15,14 @@ serve(async (req) => {
   try {
     const { message } = await req.json();
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Make request to Puter.js AI API
+    const response = await fetch('https://api.puter.com/v2/openai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -30,10 +30,18 @@ serve(async (req) => {
           },
           { role: 'user', content: message }
         ],
+        model: 'gpt-3.5-turbo',
+        temperature: 0.7,
+        max_tokens: 500
       }),
     });
 
     const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Failed to get AI response');
+    }
+
     const generatedText = data.choices[0].message.content;
 
     return new Response(
@@ -41,7 +49,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in chat-with-ai function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
