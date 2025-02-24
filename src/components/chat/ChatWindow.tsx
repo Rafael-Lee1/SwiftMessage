@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from 'next-themes';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export type MessageReaction = {
   emoji: string;
@@ -41,8 +43,18 @@ const ChatWindow = () => {
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const [selectedMessageForReaction, setSelectedMessageForReaction] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+
+  // Auto scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   useEffect(() => {
     // Subscribe to presence changes
@@ -71,103 +83,129 @@ const ChatWindow = () => {
     };
   }, []);
 
+  const handleFileUpload = async (file: File): Promise<string> => {
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      throw new Error('File size exceeds 5MB limit');
+    }
+
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('chat-files')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('chat-files')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() && !selectedFile) return;
 
-    let fileUrl = '';
-    if (selectedFile) {
-      try {
-        const fileExt = selectedFile.name.split('.').pop();
-        const filePath = `${crypto.randomUUID()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('chat-files')
-          .upload(filePath, selectedFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('chat-files')
-          .getPublicUrl(filePath);
-
-        fileUrl = publicUrl;
-      } catch (error) {
-        toast({
-          title: 'Error uploading file',
-          description: 'Please try again',
-          variant: 'destructive',
-        });
-        return;
+    try {
+      let fileUrl = '';
+      if (selectedFile) {
+        try {
+          fileUrl = await handleFileUpload(selectedFile);
+        } catch (error: any) {
+          toast({
+            title: 'Error uploading file',
+            description: error.message || 'Please try again',
+            variant: 'destructive',
+          });
+          return;
+        }
       }
-    }
 
-    const message: Message = {
-      id: Date.now().toString(),
-      text: newMessage,
-      sender: 'user',
-      timestamp: new Date(),
-      ...(fileUrl && (selectedFile?.type.startsWith('image/') 
-        ? { imageUrl: fileUrl }
-        : { fileUrl: fileUrl }
-      ))
-    };
+      const message: Message = {
+        id: Date.now().toString(),
+        text: newMessage,
+        sender: 'user',
+        timestamp: new Date(),
+        ...(fileUrl && (selectedFile?.type.startsWith('image/') 
+          ? { imageUrl: fileUrl }
+          : { fileUrl: fileUrl }
+        ))
+      };
 
-    setMessages((prev) => [...prev, message]);
-    setNewMessage('');
-    setSelectedFile(null);
-
-    // Handle AI chat with improved error handling
-    if (newMessage.trim().toLowerCase().startsWith('/ai')) {
-      setIsBotTyping(true);
-      try {
-        const { data, error } = await supabase.functions.invoke('chat-with-ai', {
-          body: { message: newMessage.slice(3).trim() }
-        });
-
-        if (error) throw error;
-
-        const botMessage: Message = {
-          id: Date.now().toString(),
-          text: data.response,
-          sender: 'bot',
-          timestamp: new Date(),
-        };
-
-        setMessages((prev) => [...prev, botMessage]);
-      } catch (error) {
-        toast({
-          title: 'AI Assistant Error',
-          description: 'Could not get a response. Please try again.',
-          variant: 'destructive',
-        });
-        
-        // Add error message to chat
-        const errorMessage: Message = {
-          id: Date.now().toString(),
-          text: 'Sorry, I encountered an error. Please try asking again.',
-          sender: 'bot',
-          timestamp: new Date(),
-        };
-        
-        setMessages((prev) => [...prev, errorMessage]);
-      } finally {
-        setIsBotTyping(false);
+      setMessages((prev) => [...prev, message]);
+      setNewMessage('');
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
+
+      // Handle AI chat with improved error handling
+      if (newMessage.trim().toLowerCase().startsWith('/ai')) {
+        setIsBotTyping(true);
+        try {
+          const { data, error } = await supabase.functions.invoke('chat-with-ai', {
+            body: { message: newMessage.slice(3).trim() }
+          });
+
+          if (error) throw error;
+
+          const botMessage: Message = {
+            id: Date.now().toString(),
+            text: data.response,
+            sender: 'bot',
+            timestamp: new Date(),
+          };
+
+          setMessages((prev) => [...prev, botMessage]);
+        } catch (error: any) {
+          toast({
+            title: 'AI Assistant Error',
+            description: 'Could not get a response. Please try again.',
+            variant: 'destructive',
+          });
+          
+          const errorMessage: Message = {
+            id: Date.now().toString(),
+            text: 'Sorry, I encountered an error. Please try asking again.',
+            sender: 'bot',
+            timestamp: new Date(),
+          };
+          
+          setMessages((prev) => [...prev, errorMessage]);
+        } finally {
+          setIsBotTyping(false);
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error sending message',
+        description: error.message || 'Please try again',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && (file.size <= 5 * 1024 * 1024)) { // 5MB limit
-      setSelectedFile(file);
-    } else {
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
       toast({
         title: 'File too large',
         description: 'Please select a file under 5MB',
         variant: 'destructive',
       });
+      e.target.value = '';
+      return;
     }
+
+    setSelectedFile(file);
+    toast({
+      title: 'File selected',
+      description: `${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
+    });
   };
 
   const handleReaction = async (messageId: string, emoji: string) => {
@@ -189,6 +227,7 @@ const ChatWindow = () => {
     });
     
     setMessages(updatedMessages);
+    setSelectedMessageForReaction(null);
   };
 
   return (
@@ -207,12 +246,13 @@ const ChatWindow = () => {
         </Button>
       </div>
       
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message) => (
             <MessageBubble
               key={message.id}
               message={message}
+              onReactionClick={() => setSelectedMessageForReaction(message.id)}
               onReaction={(emoji) => handleReaction(message.id, emoji)}
             />
           ))}
@@ -226,11 +266,11 @@ const ChatWindow = () => {
           variant="ghost"
           size="icon"
           className="shrink-0"
-          onClick={() => document.getElementById('file-input')?.click()}
+          onClick={() => fileInputRef.current?.click()}
         >
           <ImageIcon className="h-5 w-5" />
           <input
-            id="file-input"
+            ref={fileInputRef}
             type="file"
             className="hidden"
             accept="image/*,.pdf,.doc,.docx"
@@ -251,15 +291,21 @@ const ChatWindow = () => {
           className="bg-background/50"
         />
         
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="shrink-0"
-          onClick={() => document.getElementById('emoji-picker')?.click()}
-        >
-          <Smile className="h-5 w-5" />
-        </Button>
+        {selectedMessageForReaction && (
+          <Popover open={true} onOpenChange={() => setSelectedMessageForReaction(null)}>
+            <PopoverContent side="top" align="end" className="w-full p-0">
+              <EmojiPicker
+                onEmojiClick={(emojiData: EmojiClickData) => {
+                  if (selectedMessageForReaction) {
+                    handleReaction(selectedMessageForReaction, emojiData.emoji);
+                  }
+                }}
+                width="100%"
+                height={400}
+              />
+            </PopoverContent>
+          </Popover>
+        )}
         
         <Button type="submit" size="icon" disabled={!newMessage.trim() && !selectedFile}>
           <Send className="h-4 w-4" />
