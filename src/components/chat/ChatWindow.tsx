@@ -3,19 +3,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, Bot, Image as ImageIcon, Sun, Moon, Smile } from "lucide-react";
+import { Send, Bot, Image as ImageIcon, Sun, Moon } from "lucide-react";
 import MessageBubble from './MessageBubble';
 import UserTypingIndicator from './UserTypingIndicator';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from 'next-themes';
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import EmojiPicker from 'emoji-picker-react';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export type MessageReaction = {
   emoji: string;
   userId: string;
+  timestamp: Date;
 };
 
 export type Message = {
@@ -29,18 +30,28 @@ export type Message = {
   fileUrl?: string;
 };
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = {
+  'image/jpeg': true,
+  'image/png': true,
+  'image/gif': true,
+  'application/pdf': true,
+  'application/msword': true,
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': true,
+};
+
 const ChatWindow = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const savedMessages = localStorage.getItem('chat-messages');
+    return savedMessages ? JSON.parse(savedMessages) : [{
       id: '1',
       text: 'Welcome to the chat! Try sending a message or asking the AI assistant a question.',
       sender: 'system',
       timestamp: new Date(),
-    },
-  ]);
+    }];
+  });
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [selectedMessageForReaction, setSelectedMessageForReaction] = useState<string | null>(null);
@@ -49,43 +60,52 @@ const ChatWindow = () => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
+  // Save messages to localStorage
+  useEffect(() => {
+    localStorage.setItem('chat-messages', JSON.stringify(messages));
+  }, [messages]);
+
+  // Save theme preference
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+  }, []);
+
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+      const element = scrollAreaRef.current;
+      element.scrollTop = element.scrollHeight;
     }
   }, [messages]);
 
-  useEffect(() => {
-    // Subscribe to presence changes
-    const channel = supabase.channel('online-users')
-      .on('presence', { event: 'sync' }, () => {
-        const newState = channel.presenceState();
-        setOnlineUsers(new Set(Object.keys(newState)));
-      })
-      .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.track({ online_at: new Date().toISOString() });
-        }
+  const validateFile = (file: File): boolean => {
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: 'File too large',
+        description: 'Please select a file under 5MB',
+        variant: 'destructive',
       });
+      return false;
+    }
 
-    // Subscribe to typing indicators
-    const typingChannel = supabase.channel('typing-indicators')
-      .on('broadcast', { event: 'typing' }, ({ payload }) => {
-        const { user, isTyping } = payload;
-        // Update typing state
-      })
-      .subscribe();
+    if (!ALLOWED_FILE_TYPES[file.type]) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please select an image, PDF, or Word document',
+        variant: 'destructive',
+      });
+      return false;
+    }
 
-    return () => {
-      supabase.removeChannel(channel);
-      supabase.removeChannel(typingChannel);
-    };
-  }, []);
+    return true;
+  };
 
   const handleFileUpload = async (file: File): Promise<string> => {
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      throw new Error('File size exceeds 5MB limit');
+    if (!validateFile(file)) {
+      throw new Error('File validation failed');
     }
 
     const fileExt = file.name.split('.').pop();
@@ -102,6 +122,38 @@ const ChatWindow = () => {
       .getPublicUrl(filePath);
 
     return publicUrl;
+  };
+
+  const handleThemeChange = (newTheme: 'light' | 'dark') => {
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
+  const handleReaction = (messageId: string, emoji: string) => {
+    const timestamp = new Date();
+    const userId = 'current-user'; // Replace with actual user ID when auth is implemented
+
+    setMessages(prevMessages => 
+      prevMessages.map(msg => {
+        if (msg.id === messageId) {
+          const reactions = [...(msg.reactions || [])];
+          const existingReactionIndex = reactions.findIndex(r => r.userId === userId);
+          
+          if (existingReactionIndex >= 0) {
+            // Update existing reaction
+            reactions[existingReactionIndex] = { emoji, userId, timestamp };
+          } else {
+            // Add new reaction
+            reactions.push({ emoji, userId, timestamp });
+          }
+          
+          return { ...msg, reactions };
+        }
+        return msg;
+      })
+    );
+    
+    setSelectedMessageForReaction(null);
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -134,31 +186,49 @@ const ChatWindow = () => {
         ))
       };
 
-      setMessages((prev) => [...prev, message]);
+      setMessages(prev => [...prev, message]);
       setNewMessage('');
       setSelectedFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
 
-      // Handle AI chat with improved error handling
+      // Handle AI chat with Puter.js
       if (newMessage.trim().toLowerCase().startsWith('/ai')) {
         setIsBotTyping(true);
         try {
-          const { data, error } = await supabase.functions.invoke('chat-with-ai', {
-            body: { message: newMessage.slice(3).trim() }
+          const response = await fetch('https://api.puter.com/v2/openai/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              messages: [
+                {
+                  role: 'system',
+                  content: 'You are a helpful assistant in a chat application. Be concise and friendly.'
+                },
+                { role: 'user', content: newMessage.slice(3).trim() }
+              ],
+              model: 'gpt-3.5-turbo',
+              temperature: 0.7,
+              max_tokens: 500
+            }),
           });
 
-          if (error) throw error;
+          if (!response.ok) {
+            throw new Error('Failed to get AI response');
+          }
 
+          const data = await response.json();
           const botMessage: Message = {
             id: Date.now().toString(),
-            text: data.response,
+            text: data.choices[0].message.content,
             sender: 'bot',
             timestamp: new Date(),
           };
 
-          setMessages((prev) => [...prev, botMessage]);
+          setMessages(prev => [...prev, botMessage]);
         } catch (error: any) {
           toast({
             title: 'AI Assistant Error',
@@ -173,7 +243,7 @@ const ChatWindow = () => {
             timestamp: new Date(),
           };
           
-          setMessages((prev) => [...prev, errorMessage]);
+          setMessages(prev => [...prev, errorMessage]);
         } finally {
           setIsBotTyping(false);
         }
@@ -191,43 +261,16 @@ const ChatWindow = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+    if (validateFile(file)) {
+      setSelectedFile(file);
       toast({
-        title: 'File too large',
-        description: 'Please select a file under 5MB',
-        variant: 'destructive',
+        title: 'File selected',
+        description: `${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
       });
-      e.target.value = '';
-      return;
     }
-
-    setSelectedFile(file);
-    toast({
-      title: 'File selected',
-      description: `${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`,
-    });
-  };
-
-  const handleReaction = async (messageId: string, emoji: string) => {
-    const updatedMessages = messages.map(msg => {
-      if (msg.id === messageId) {
-        const reactions = msg.reactions || [];
-        const userId = 'current-user'; // Replace with actual user ID
-        const existingReaction = reactions.findIndex(r => r.userId === userId);
-        
-        if (existingReaction >= 0) {
-          reactions[existingReaction].emoji = emoji;
-        } else {
-          reactions.push({ emoji, userId });
-        }
-        
-        return { ...msg, reactions };
-      }
-      return msg;
-    });
     
-    setMessages(updatedMessages);
-    setSelectedMessageForReaction(null);
+    // Reset input
+    e.target.value = '';
   };
 
   return (
@@ -240,13 +283,14 @@ const ChatWindow = () => {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onClick={() => handleThemeChange(theme === 'dark' ? 'light' : 'dark')}
+          className="transition-colors"
         >
           {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
       </div>
       
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message) => (
             <MessageBubble
@@ -295,7 +339,7 @@ const ChatWindow = () => {
           <Popover open={true} onOpenChange={() => setSelectedMessageForReaction(null)}>
             <PopoverContent side="top" align="end" className="w-full p-0">
               <EmojiPicker
-                onEmojiClick={(emojiData: EmojiClickData) => {
+                onEmojiClick={(emojiData) => {
                   if (selectedMessageForReaction) {
                     handleReaction(selectedMessageForReaction, emojiData.emoji);
                   }
