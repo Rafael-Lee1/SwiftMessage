@@ -7,28 +7,12 @@ import { Send, Bot, Image as ImageIcon, Sun, Moon } from "lucide-react";
 import MessageBubble from './MessageBubble';
 import UserTypingIndicator from './UserTypingIndicator';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from 'next-themes';
 import EmojiPicker from 'emoji-picker-react';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-
-export type MessageReaction = {
-  emoji: string;
-  userId: string;
-  timestamp: Date;
-};
-
-export type Message = {
-  id: string;
-  text: string;
-  sender: string;
-  timestamp: Date;
-  read?: boolean;
-  reactions?: MessageReaction[];
-  imageUrl?: string;
-  fileUrl?: string;
-};
+import { Popover, PopoverContent } from "@/components/ui/popover";
+import type { Message } from '@/types/chat';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = {
@@ -42,14 +26,23 @@ const ALLOWED_FILE_TYPES = {
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState<Message[]>(() => {
-    const savedMessages = localStorage.getItem('chat-messages');
-    return savedMessages ? JSON.parse(savedMessages) : [{
-      id: '1',
-      text: 'Welcome to the chat! Try sending a message or asking the AI assistant a question.',
-      sender: 'system',
-      timestamp: new Date(),
-    }];
+    try {
+      const savedMessages = localStorage.getItem('chat-messages');
+      return savedMessages ? JSON.parse(savedMessages, (key, value) => {
+        if (key === 'timestamp') return new Date(value);
+        return value;
+      }) : [{
+        id: '1',
+        text: 'Welcome to the chat! Try sending a message or asking the AI assistant a question.',
+        sender: 'system',
+        timestamp: new Date(),
+      }];
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      return [];
+    }
   });
+
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -60,28 +53,33 @@ const ChatWindow = () => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
-  // Save messages to localStorage
+  // Save messages to localStorage with proper date handling
   useEffect(() => {
-    localStorage.setItem('chat-messages', JSON.stringify(messages));
+    try {
+      localStorage.setItem('chat-messages', JSON.stringify(messages));
+    } catch (error) {
+      console.error('Error saving messages:', error);
+    }
   }, [messages]);
 
-  // Save theme preference
+  // Initialize theme from localStorage or system preference
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       setTheme(savedTheme);
     }
-  }, []);
+  }, [setTheme]);
 
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollAreaRef.current) {
-      const element = scrollAreaRef.current;
-      element.scrollTop = element.scrollHeight;
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
 
   const validateFile = (file: File): boolean => {
+    if (!file) return false;
+
     if (file.size > MAX_FILE_SIZE) {
       toast({
         title: 'File too large',
@@ -104,34 +102,41 @@ const ChatWindow = () => {
   };
 
   const handleFileUpload = async (file: File): Promise<string> => {
-    if (!validateFile(file)) {
-      throw new Error('File validation failed');
-    }
-
     const fileExt = file.name.split('.').pop();
-    const filePath = `${crypto.randomUUID()}.${fileExt}`;
-    
-    const { error: uploadError } = await supabase.storage
-      .from('chat-files')
-      .upload(filePath, file);
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
-    if (uploadError) throw uploadError;
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('chat-files')
+        .upload(fileName, file);
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('chat-files')
-      .getPublicUrl(filePath);
+      if (uploadError) throw uploadError;
 
-    return publicUrl;
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat-files')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw new Error('Failed to upload file');
+    }
   };
 
-  const handleThemeChange = (newTheme: 'light' | 'dark') => {
+  const handleThemeChange = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
+    
+    toast({
+      title: 'Theme Changed',
+      description: `Switched to ${newTheme} mode`,
+    });
   };
 
-  const handleReaction = (messageId: string, emoji: string) => {
+  const handleReaction = async (messageId: string, emoji: string) => {
     const timestamp = new Date();
-    const userId = 'current-user'; // Replace with actual user ID when auth is implemented
+    const userId = (await supabase.auth.getUser()).data.user?.id || 'anonymous';
 
     setMessages(prevMessages => 
       prevMessages.map(msg => {
@@ -140,10 +145,8 @@ const ChatWindow = () => {
           const existingReactionIndex = reactions.findIndex(r => r.userId === userId);
           
           if (existingReactionIndex >= 0) {
-            // Update existing reaction
             reactions[existingReactionIndex] = { emoji, userId, timestamp };
           } else {
-            // Add new reaction
             reactions.push({ emoji, userId, timestamp });
           }
           
@@ -176,7 +179,7 @@ const ChatWindow = () => {
       }
 
       const message: Message = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         text: newMessage,
         sender: 'user',
         timestamp: new Date(),
@@ -222,28 +225,20 @@ const ChatWindow = () => {
 
           const data = await response.json();
           const botMessage: Message = {
-            id: Date.now().toString(),
+            id: crypto.randomUUID(),
             text: data.choices[0].message.content,
             sender: 'bot',
             timestamp: new Date(),
           };
 
           setMessages(prev => [...prev, botMessage]);
-        } catch (error: any) {
+        } catch (error) {
+          console.error('AI chat error:', error);
           toast({
             title: 'AI Assistant Error',
             description: 'Could not get a response. Please try again.',
             variant: 'destructive',
           });
-          
-          const errorMessage: Message = {
-            id: Date.now().toString(),
-            text: 'Sorry, I encountered an error. Please try asking again.',
-            sender: 'bot',
-            timestamp: new Date(),
-          };
-          
-          setMessages(prev => [...prev, errorMessage]);
         } finally {
           setIsBotTyping(false);
         }
@@ -269,7 +264,6 @@ const ChatWindow = () => {
       });
     }
     
-    // Reset input
     e.target.value = '';
   };
 
@@ -283,14 +277,14 @@ const ChatWindow = () => {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => handleThemeChange(theme === 'dark' ? 'light' : 'dark')}
+          onClick={handleThemeChange}
           className="transition-colors"
         >
           {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
       </div>
       
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message) => (
             <MessageBubble

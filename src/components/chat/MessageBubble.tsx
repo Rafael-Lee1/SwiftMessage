@@ -1,6 +1,6 @@
 
 import { cn } from '@/lib/utils';
-import type { Message } from './ChatWindow';
+import type { Message } from '@/types/chat';
 import { Check, Download, SmileIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
