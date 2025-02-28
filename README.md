@@ -1,69 +1,101 @@
-# Welcome to your Lovable project
+# ChatBubble - Aplicativo de Chat em Tempo Real
 
-## Project info
+ChatBubble é um aplicativo moderno de chat que combina uma experiência de usuário ágil e responsiva com funcionalidades avançadas. Desenvolvido com a stack `vite_react_shadcn_ts`, ele oferece:
 
-**URL**: https://lovable.dev/projects/c2ab39ac-ba64-428f-a1f9-8494d81c87f8
+- **Mensagens em Tempo Real:** Comunicação instantânea e contínua entre usuários.
+- **Suporte a Emojis e Upload de Arquivos:** Experiência interativa com reações por emojis e envio de arquivos.
+- **Autenticação e Gerenciamento de Dados:** Utilizando [Supabase](https://supabase.com) para autenticação e banco de dados em tempo real.
+- **Integração com Inteligência Artificial:** Implementação da [Puter.js AI API](https://developer.puter.com) para potencializar interações com respostas automatizadas e suporte inteligente.
 
-## How can I edit this code?
+Esta aplicação demonstra o uso das tecnologias mais modernas para criar um ambiente de chat robusto e escalável.
 
-There are several ways of editing your application.
+## Tecnologias Utilizadas
 
-**Use Lovable**
+- **[Vite](https://vitejs.dev):** Ferramenta de build extremamente rápida para desenvolvimento moderno.
+- **[React](https://reactjs.org):** Biblioteca para construção de interfaces de usuário.
+- **[TypeScript](https://www.typescriptlang.org):** Superset do JavaScript que adiciona tipagem estática.
+- **[shadcn-ui](https://ui.shadcn.com):** Conjunto de componentes UI personalizáveis para React.
+- **[Tailwind CSS](https://tailwindcss.com):** Framework CSS utilitário para designs customizados.
+- **[Supabase](https://supabase.com):** Plataforma backend que fornece autenticação, banco de dados e serviços em tempo real.
+- **[Puter.js AI API](https://developer.puter.com):** Biblioteca que traz serviços de autenticação, armazenamento na nuvem e funcionalidades de IA diretamente para o frontend.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c2ab39ac-ba64-428f-a1f9-8494d81c87f8) and start prompting.
+## Funcionalidades
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Mensagens em Tempo Real:** Sistema de chat com atualizações instantâneas.
+- **Emojis e Upload de Arquivos:** Interações aprimoradas com suporte para reações e envio de mídias.
+- **Autenticação e Gerenciamento de Usuários:** Segurança e escalabilidade com Supabase.
+- **Integração com IA:** Utilização da Puter.js AI API para oferecer respostas inteligentes e suporte automatizado.
 
-**Use your preferred IDE**
+## Instalação
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Para rodar o aplicativo localmente, siga os passos abaixo:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **Clone o repositório:**
+   ```bash
+   git clone <URL_DO_REPOSITÓRIO>
+   ```
+2. **Navegue até o diretório do projeto:**
+   ```bash
+   cd <NOME_DO_PROJETO>
+   ```
+3. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
+4. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
 
-Follow these steps:
+## Deploy
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Você pode implantar o ChatBubble utilizando plataformas como o [Lovable](https://lovable.dev) ou serviços de deploy como [Netlify](https://www.netlify.com). Basta seguir as instruções específicas da plataforma escolhida para colocar sua aplicação online.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Contribuição
 
-# Step 3: Install the necessary dependencies.
-npm i
+Contribuições são sempre bem-vindas! Para colaborar:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Faça um fork do repositório.
+2. Crie uma branch para sua nova feature ou correção:
+   ```bash
+   git checkout -b feature/nova-funcionalidade
+   ```
+3. Realize as alterações necessárias e faça commit:
+   ```bash
+   git commit -m "feat: adicionar nova funcionalidade"
+   ```
+4. Envie sua branch:
+   ```bash
+   git push origin feature/nova-funcionalidade
+   ```
+5. Abra um Pull Request descrevendo suas mudanças.
+
+## Licença
+
+Distribuído sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+Esta aplicação demonstra como integrar tecnologias modernas para criar um sistema de chat robusto e escalável, utilizando soluções de backend sem servidor e integrações com IA. Sinta-se à vontade para explorar, contribuir e aprimorar o projeto!
+
+---
+
+### Fontes de Referência
+
+- Vite: [https://vitejs.dev](https://vitejs.dev)
+- React: [https://reactjs.org](https://reactjs.org)
+- TypeScript: [https://www.typescriptlang.org](https://www.typescriptlang.org)
+- shadcn-ui: [https://ui.shadcn.com](https://ui.shadcn.com)
+- Tailwind CSS: [https://tailwindcss.com](https://tailwindcss.com)
+- Supabase: [https://supabase.com](https://supabase.com)
+- Puter.js AI API: [https://developer.puter.com](https://developer.puter.com)
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c2ab39ac-ba64-428f-a1f9-8494d81c87f8) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Fontes confiáveis utilizadas:
+- [Vite](https://vitejs.dev)
+- [React](https://reactjs.org)
+- [TypeScript](https://www.typescriptlang.org)
+- [shadcn-ui](https://ui.shadcn.com)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Supabase](https://supabase.com)
+- [Puter.js AI API](https://developer.puter.com)
