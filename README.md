@@ -1,10 +1,16 @@
-# ChatBubble - Aplicativo de Chat em Tempo Real
+<p align="center">
+  <img width="460" height="300" src="https://github.com/Rafael-Lee1/Icons/blob/8a4f18d8c811a1bf19f8dfe5472511a16788ce54/MESSAGE_API.png">
+</p>
 
-ChatBubble é um aplicativo moderno de chat que combina uma experiência de usuário ágil e responsiva com funcionalidades avançadas. Desenvolvido com a stack `vite_react_shadcn_ts`, ele oferece:
+# SwiftMessage - Aplicativo de Chat em Tempo Real
+
+SwiftMessage é um aplicativo moderno de chat que combina uma experiência de usuário ágil e responsiva com funcionalidades avançadas. Desenvolvido com a stack `vite_react_shadcn_ts`, ele oferece:
 
 - **Mensagens em Tempo Real:** Comunicação instantânea e contínua entre usuários.
 - **Suporte a Emojis e Upload de Arquivos:** Experiência interativa com reações por emojis e envio de arquivos.
 - **Autenticação e Gerenciamento de Dados:** Utilizando [Supabase](https://supabase.com) para autenticação e banco de dados em tempo real.
+- **Login com Google:** Integração com a [Google Identity Platform](https://developers.google.com/identity) para autenticação rápida e segura via contas Google.
+- **Envio de Emails de Login com RESEND:** Uso da plataforma [RESEND](https://resend.com) para disparo seguro e confiável de emails de verificação e login.
 - **Integração com Inteligência Artificial:** Implementação da [Puter.js AI API](https://developer.puter.com) para potencializar interações com respostas automatizadas e suporte inteligente.
 
 Esta aplicação demonstra o uso das tecnologias mais modernas para criar um ambiente de chat robusto e escalável.
@@ -18,6 +24,9 @@ Esta aplicação demonstra o uso das tecnologias mais modernas para criar um amb
 - **[Tailwind CSS](https://tailwindcss.com):** Framework CSS utilitário para designs customizados.
 - **[Supabase](https://supabase.com):** Plataforma backend que fornece autenticação, banco de dados e serviços em tempo real.
 - **[Puter.js AI API](https://developer.puter.com):** Biblioteca que traz serviços de autenticação, armazenamento na nuvem e funcionalidades de IA diretamente para o frontend.
+- **[Google Identity Platform](https://developers.google.com/identity):** Utilizada para autenticação via Google, permitindo login rápido e seguro.
+- **[RESEND](https://resend.com):** Plataforma para envio de emails de login, garantindo a verificação e segurança do usuário.
+
 
 ## Funcionalidades
 
@@ -49,7 +58,7 @@ Para rodar o aplicativo localmente, siga os passos abaixo:
 
 ## Deploy
 
-Você pode implantar o ChatBubble utilizando plataformas como o [Lovable](https://lovable.dev) ou serviços de deploy como [Netlify](https://www.netlify.com). Basta seguir as instruções específicas da plataforma escolhida para colocar sua aplicação online.
+Você pode implantar o SwiftMessage utilizando plataformas como o [Lovable](https://lovable.dev) ou serviços de deploy como [Netlify](https://www.netlify.com). Basta seguir as instruções específicas da plataforma escolhida para colocar sua aplicação online.
 
 ## Contribuição
 
@@ -89,13 +98,6 @@ Esta aplicação demonstra como integrar tecnologias modernas para criar um sist
 - Tailwind CSS: [https://tailwindcss.com](https://tailwindcss.com)
 - Supabase: [https://supabase.com](https://supabase.com)
 - Puter.js AI API: [https://developer.puter.com](https://developer.puter.com)
+- RESEND: [https://resend.com](https://resend.com)
+- Google Identity Plataform: [https://developers.google.com/identity](https://developers.google.com/identity) 
 ```
-
-Fontes confiáveis utilizadas:
-- [Vite](https://vitejs.dev)
-- [React](https://reactjs.org)
-- [TypeScript](https://www.typescriptlang.org)
-- [shadcn-ui](https://ui.shadcn.com)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Supabase](https://supabase.com)
-- [Puter.js AI API](https://developer.puter.com)
