@@ -15,6 +15,8 @@ SwiftMessage é um aplicativo moderno de chat que combina uma experiência de us
 
 Esta aplicação demonstra o uso das tecnologias mais modernas para criar um ambiente de chat robusto e escalável.
 
+**Você pode acessar o projeto clicando <a href="https://preview--chatbubble-nimbus.lovable.app/auth">aqui</a>.</p>
+
 ## Tecnologias Utilizadas
 
 - **[Vite](https://vitejs.dev):** Ferramenta de build extremamente rápida para desenvolvimento moderno.
@@ -100,4 +102,3 @@ Esta aplicação demonstra como integrar tecnologias modernas para criar um sist
 - Puter.js AI API: [https://developer.puter.com](https://developer.puter.com)
 - RESEND: [https://resend.com](https://resend.com)
 - Google Identity Plataform: [https://developers.google.com/identity](https://developers.google.com/identity) 
-```
