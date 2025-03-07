@@ -5,7 +5,7 @@ import MessageContent from './MessageContent';
 import MessageFooter from './MessageFooter';
 import MessageReactions from './MessageReactions';
 import MessageActions from './MessageActions';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface MessageBubbleProps {
@@ -29,7 +29,7 @@ const MessageBubble = ({
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   
   // Fetch the current user ID
-  useState(() => {
+  useEffect(() => {
     const fetchUserId = async () => {
       const { data } = await supabase.auth.getUser();
       if (data.user) {
