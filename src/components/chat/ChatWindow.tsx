@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import type { Message } from '@/types/chat';
 import { useTheme } from 'next-themes';
@@ -10,6 +9,7 @@ import { loadMessagesFromLocalStorage, saveMessagesToLocalStorage } from '@/util
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import MessageList from './MessageList';
+import { Share2 } from 'lucide-react';
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState<Message[]>(loadMessagesFromLocalStorage);
@@ -19,12 +19,10 @@ const ChatWindow = () => {
   const { toast } = useToast();
   const { setTheme } = useTheme();
 
-  // Save messages to localStorage with proper date handling
   useEffect(() => {
     saveMessagesToLocalStorage(messages);
   }, [messages]);
 
-  // Initialize theme from localStorage or system preference
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
@@ -57,6 +55,37 @@ const ChatWindow = () => {
     setSelectedMessageForReaction(null);
   };
 
+  const handleShareMessage = (messageId: string) => {
+    const message = messages.find(msg => msg.id === messageId);
+    if (message) {
+      navigator.clipboard.writeText(message.text);
+      toast({
+        title: "Message copied to clipboard",
+        description: "You can now share it with others"
+      });
+    }
+  };
+
+  const handleBookmarkMessage = (messageId: string) => {
+    const message = messages.find(msg => msg.id === messageId);
+    if (message) {
+      const bookmarks = JSON.parse(localStorage.getItem('bookmarkedMessages') || '[]');
+      if (!bookmarks.some((bookmark: Message) => bookmark.id === messageId)) {
+        bookmarks.push(message);
+        localStorage.setItem('bookmarkedMessages', JSON.stringify(bookmarks));
+        toast({
+          title: "Message bookmarked",
+          description: "You can access it later from your bookmarks"
+        });
+      } else {
+        toast({
+          title: "Already bookmarked",
+          description: "This message is already in your bookmarks"
+        });
+      }
+    }
+  };
+
   const handleSend = async (newMessageText: string, selectedFile: File | null) => {
     try {
       let fileUrl = '';
@@ -86,7 +115,6 @@ const ChatWindow = () => {
 
       setMessages(prev => [...prev, message]);
 
-      // Handle AI chat with Puter.js
       if (newMessageText.trim().toLowerCase().startsWith('/ai')) {
         setIsBotTyping(true);
         try {
@@ -127,6 +155,8 @@ const ChatWindow = () => {
         selectedMessageForReaction={selectedMessageForReaction}
         setSelectedMessageForReaction={setSelectedMessageForReaction}
         handleReaction={handleReaction}
+        handleShareMessage={handleShareMessage}
+        handleBookmarkMessage={handleBookmarkMessage}
       />
       
       <ChatInput 

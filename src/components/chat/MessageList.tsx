@@ -14,6 +14,8 @@ interface MessageListProps {
   selectedMessageForReaction: string | null;
   setSelectedMessageForReaction: (messageId: string | null) => void;
   handleReaction: (messageId: string, emoji: string) => void;
+  handleShareMessage?: (messageId: string) => void;
+  handleBookmarkMessage?: (messageId: string) => void;
 }
 
 const MessageList: React.FC<MessageListProps> = ({
@@ -22,7 +24,9 @@ const MessageList: React.FC<MessageListProps> = ({
   isBotTyping,
   selectedMessageForReaction,
   setSelectedMessageForReaction,
-  handleReaction
+  handleReaction,
+  handleShareMessage,
+  handleBookmarkMessage
 }) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +46,8 @@ const MessageList: React.FC<MessageListProps> = ({
             message={message}
             onReactionClick={() => setSelectedMessageForReaction(message.id)}
             onReaction={(emoji) => handleReaction(message.id, emoji)}
+            onShareClick={handleShareMessage ? () => handleShareMessage(message.id) : undefined}
+            onBookmarkClick={handleBookmarkMessage ? () => handleBookmarkMessage(message.id) : undefined}
           />
         ))}
         {(isTyping || isBotTyping) && <UserTypingIndicator />}
