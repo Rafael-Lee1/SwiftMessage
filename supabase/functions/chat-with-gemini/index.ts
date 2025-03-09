@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -23,8 +23,11 @@ serve(async (req) => {
     // Get the Gemini API key from environment variables
     const apiKey = Deno.env.get("GEMINI_API_KEY");
     if (!apiKey) {
+      console.error("GEMINI_API_KEY is not set in the environment variables");
       throw new Error("GEMINI_API_KEY is not set in the environment variables");
     }
+
+    console.log(`Sending request to Gemini API with message: ${message}`);
 
     // Make request to Gemini API
     const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
@@ -49,14 +52,22 @@ serve(async (req) => {
       }),
     });
 
-    const data = await response.json();
-    
     if (!response.ok) {
-      console.error('Gemini API error:', data);
-      throw new Error(data.error?.message || 'Failed to get Gemini response');
+      const errorData = await response.json();
+      console.error('Gemini API error:', errorData);
+      throw new Error(errorData.error?.message || 'Failed to get Gemini response');
     }
 
-    const generatedText = data.candidates[0].content.parts[0].text;
+    const data = await response.json();
+    console.log('Gemini API response:', JSON.stringify(data).substring(0, 200) + '...');
+    
+    let generatedText = '';
+    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+      generatedText = data.candidates[0].content.parts[0].text;
+    } else {
+      console.error('Unexpected response structure:', data);
+      throw new Error('Unexpected response structure from Gemini API');
+    }
 
     return new Response(
       JSON.stringify({ response: generatedText }),

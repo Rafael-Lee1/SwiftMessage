@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import type { Message } from '@/types/chat';
 import { useTheme } from 'next-themes';
@@ -127,7 +126,31 @@ const ChatWindow = () => {
 
       setMessages(prev => [...prev, message]);
 
-      if (newMessageText.trim().toLowerCase().startsWith('/ai')) {
+      if (newMessageText.trim().toLowerCase().startsWith('/gemini')) {
+        setIsBotTyping(true);
+        try {
+          console.log('Calling Gemini with:', newMessageText.slice(8).trim());
+          const geminiResponse = await fetchGeminiResponse(newMessageText.slice(8).trim());
+          
+          const botMessage: Message = {
+            id: crypto.randomUUID(),
+            text: geminiResponse,
+            sender: 'bot',
+            timestamp: new Date(),
+          };
+
+          setMessages(prev => [...prev, botMessage]);
+        } catch (error: any) {
+          console.error('Gemini chat error:', error);
+          toast({
+            title: 'Gemini Assistant Error',
+            description: error.message || 'Could not get a response. Please try again.',
+            variant: 'destructive',
+          });
+        } finally {
+          setIsBotTyping(false);
+        }
+      } else if (newMessageText.trim().toLowerCase().startsWith('/ai')) {
         setIsBotTyping(true);
         try {
           const aiResponse = await fetchAIResponse(newMessageText);
@@ -167,29 +190,6 @@ const ChatWindow = () => {
           console.error('Claude chat error:', error);
           toast({
             title: 'Claude Assistant Error',
-            description: 'Could not get a response. Please try again.',
-            variant: 'destructive',
-          });
-        } finally {
-          setIsBotTyping(false);
-        }
-      } else if (newMessageText.trim().toLowerCase().startsWith('/gemini')) {
-        setIsBotTyping(true);
-        try {
-          const geminiResponse = await fetchGeminiResponse(newMessageText.slice(8).trim());
-          
-          const botMessage: Message = {
-            id: crypto.randomUUID(),
-            text: geminiResponse,
-            sender: 'bot',
-            timestamp: new Date(),
-          };
-
-          setMessages(prev => [...prev, botMessage]);
-        } catch (error) {
-          console.error('Gemini chat error:', error);
-          toast({
-            title: 'Gemini Assistant Error',
             description: 'Could not get a response. Please try again.',
             variant: 'destructive',
           });
