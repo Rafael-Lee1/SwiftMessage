@@ -29,22 +29,35 @@ const MessageList: React.FC<MessageListProps> = ({
   handleBookmarkMessage
 }) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
 
-  // Auto scroll to bottom when new messages arrive or typing indicators change
+  // Scroll to bottom whenever messages, typing status, or bot typing status changes
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current;
-      // Use requestAnimationFrame to ensure the DOM has updated before scrolling
-      requestAnimationFrame(() => {
+    const scrollToBottom = () => {
+      if (scrollAreaRef.current) {
+        const scrollElement = scrollAreaRef.current;
         scrollElement.scrollTop = scrollElement.scrollHeight;
-      });
-    }
+      }
+      
+      // Alternative method using the lastMessageRef if the above doesn't work
+      if (lastMessageRef.current) {
+        lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    // Use both setTimeout and requestAnimationFrame for more reliable scrolling
+    // This ensures DOM has fully updated before attempting to scroll
+    const timeoutId = setTimeout(() => {
+      requestAnimationFrame(scrollToBottom);
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
   }, [messages, isTyping, isBotTyping]);
 
   return (
     <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
       <div className="space-y-4">
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <MessageBubble
             key={message.id}
             message={message}
@@ -58,6 +71,9 @@ const MessageList: React.FC<MessageListProps> = ({
         {/* Only show typing indicators when someone is actually typing */}
         {isTyping && <UserTypingIndicator isUser={true} />}
         {isBotTyping && <UserTypingIndicator isBot={true} />}
+        
+        {/* Invisible div at the end for scrolling to the bottom */}
+        <div ref={lastMessageRef} />
       </div>
       
       {selectedMessageForReaction && (
