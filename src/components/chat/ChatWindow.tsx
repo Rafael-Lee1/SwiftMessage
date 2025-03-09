@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAIResponse } from '@/utils/chat/aiUtils';
 import { fetchClaudeResponse } from '@/utils/chat/claudeUtils';
+import { fetchGeminiResponse } from '@/utils/chat/geminiUtils';
 import { handleFileUpload } from '@/utils/chat/fileUtils';
 import { loadMessagesFromLocalStorage, saveMessagesToLocalStorage } from '@/utils/chat/storageUtils';
 import ChatHeader from './ChatHeader';
@@ -166,6 +167,29 @@ const ChatWindow = () => {
           console.error('Claude chat error:', error);
           toast({
             title: 'Claude Assistant Error',
+            description: 'Could not get a response. Please try again.',
+            variant: 'destructive',
+          });
+        } finally {
+          setIsBotTyping(false);
+        }
+      } else if (newMessageText.trim().toLowerCase().startsWith('/gemini')) {
+        setIsBotTyping(true);
+        try {
+          const geminiResponse = await fetchGeminiResponse(newMessageText.slice(8).trim());
+          
+          const botMessage: Message = {
+            id: crypto.randomUUID(),
+            text: geminiResponse,
+            sender: 'bot',
+            timestamp: new Date(),
+          };
+
+          setMessages(prev => [...prev, botMessage]);
+        } catch (error) {
+          console.error('Gemini chat error:', error);
+          toast({
+            title: 'Gemini Assistant Error',
             description: 'Could not get a response. Please try again.',
             variant: 'destructive',
           });

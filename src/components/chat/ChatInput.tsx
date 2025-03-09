@@ -84,7 +84,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }}
         placeholder={selectedFile 
           ? `File selected: ${selectedFile.name}`
-          : "Type a message... (Use /ai to chat with AI)"
+          : "Type a message... (Use /ai, /claude, or /gemini to chat with AI)"
         }
         className="bg-background/50"
       />
