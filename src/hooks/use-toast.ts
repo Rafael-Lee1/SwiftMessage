@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -51,6 +52,11 @@ type Action =
 
 interface State {
   toasts: ToasterToast[]
+}
+
+export interface ToastAPI {
+  toast: (props: any) => void;
+  dismiss: (toastId?: string) => void;
 }
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
