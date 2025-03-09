@@ -37,15 +37,15 @@ const ContactSidebar = () => {
   };
 
   return (
-    <div className="bg-gray-50 border-r border-gray-200 h-full flex flex-col">
+    <div className="bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full flex flex-col">
       {/* Search Bar */}
-      <div className="p-3 border-b border-gray-200">
+      <div className="p-3 border-b border-gray-200 dark:border-gray-700">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
           <Input
             type="text"
             placeholder="Search..."
-            className="pl-10 bg-gray-100 border-0"
+            className="pl-10 bg-gray-100 dark:bg-gray-700 border-0"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -53,10 +53,10 @@ const ContactSidebar = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-gray-200 dark:border-gray-700">
         <Button
           variant={activeTab === 'chat' ? 'default' : 'ghost'}
-          className={`flex-1 rounded-none ${activeTab === 'chat' ? 'bg-primary' : ''}`}
+          className={`flex-1 rounded-none ${activeTab === 'chat' ? 'bg-primary text-primary-foreground' : 'text-gray-700 dark:text-gray-300'}`}
           onClick={() => setActiveTab('chat')}
         >
           <MessageSquare className="h-4 w-4 mr-2" />
@@ -64,7 +64,7 @@ const ContactSidebar = () => {
         </Button>
         <Button
           variant={activeTab === 'groups' ? 'default' : 'ghost'}
-          className="flex-1 rounded-none"
+          className={`flex-1 rounded-none ${activeTab === 'groups' ? 'bg-primary text-primary-foreground' : 'text-gray-700 dark:text-gray-300'}`}
           onClick={() => setActiveTab('groups')}
         >
           <Users className="h-4 w-4 mr-2" />
@@ -77,7 +77,7 @@ const ContactSidebar = () => {
         {filteredContacts.map(contact => (
           <div
             key={contact.id}
-            className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-100 relative ${
+            className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 relative ${
               selectedContact === contact.id ? 'contact-active' : ''
             }`}
             onClick={() => setSelectedContact(contact.id)}
@@ -88,40 +88,40 @@ const ContactSidebar = () => {
                 <AvatarFallback>{getInitials(contact.name)}</AvatarFallback>
               </Avatar>
               {contact.online && (
-                <span className="contact-status-online absolute bottom-0 right-0 ring-2 ring-white"></span>
+                <span className="contact-status-online absolute bottom-0 right-0 ring-2 ring-white dark:ring-gray-800"></span>
               )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex justify-between">
-                <span className="font-medium text-sm truncate">{contact.name}</span>
+                <span className="font-medium text-sm truncate text-gray-800 dark:text-gray-200">{contact.name}</span>
                 {contact.unread > 0 && (
                   <Badge variant="default" className="bg-primary h-5 w-5 rounded-full p-0 flex items-center justify-center">
                     {contact.unread}
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-gray-500 truncate">{contact.lastMessage}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{contact.lastMessage}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Bottom Navigation */}
-      <div className="flex justify-around p-2 border-t border-gray-200">
-        <Button variant="ghost" size="icon">
-          <MessageSquare className="h-5 w-5 text-gray-500" />
+      <div className="flex justify-around p-2 border-t border-gray-200 dark:border-gray-700">
+        <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+          <MessageSquare className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon">
-          <Phone className="h-5 w-5 text-gray-500" />
+        <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+          <Phone className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon">
-          <Video className="h-5 w-5 text-gray-500" />
+        <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+          <Video className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon">
-          <Calendar className="h-5 w-5 text-gray-500" />
+        <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+          <Calendar className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon">
-          <Settings className="h-5 w-5 text-gray-500" />
+        <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+          <Settings className="h-5 w-5" />
         </Button>
       </div>
     </div>

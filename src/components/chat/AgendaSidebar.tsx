@@ -52,7 +52,7 @@ const AgendaSidebar = () => {
     days.push(
       <div 
         key={`day-${i}`} 
-        className={`calendar-cell cursor-pointer hover:bg-gray-100 ${i === highlightedDate ? 'date-active' : ''}`}
+        className={`calendar-cell cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${i === highlightedDate ? 'date-active' : 'text-gray-800 dark:text-gray-200'}`}
         onClick={() => setHighlightedDate(i)}
       >
         {i}
@@ -61,25 +61,25 @@ const AgendaSidebar = () => {
   }
 
   return (
-    <div className="bg-gray-50 border-l border-gray-200 h-full flex flex-col">
-      <div className="p-4 border-b border-gray-200">
+    <div className="bg-gray-50 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 h-full flex flex-col">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex justify-between items-center">
-          <h2 className="font-medium text-base">My Agenda</h2>
-          <Button variant="ghost" size="icon">
+          <h2 className="font-medium text-base text-gray-800 dark:text-gray-200">My Agenda</h2>
+          <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <Plus className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
       {/* Calendar */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-medium">{monthName} {year}</h3>
+          <h3 className="font-medium text-gray-800 dark:text-gray-200">{monthName} {year}</h3>
           <div className="flex gap-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth}>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" onClick={prevMonth}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth}>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" onClick={nextMonth}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -88,7 +88,7 @@ const AgendaSidebar = () => {
         {/* Calendar header */}
         <div className="calendar-grid mb-2">
           {['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'].map(day => (
-            <div key={day} className="calendar-cell text-gray-500 text-xs font-medium">
+            <div key={day} className="calendar-cell text-gray-500 dark:text-gray-400 text-xs font-medium">
               {day}
             </div>
           ))}
@@ -102,16 +102,16 @@ const AgendaSidebar = () => {
 
       {/* Agenda items */}
       <div className="flex-1 overflow-y-auto p-4">
-        <h3 className="font-medium mb-3">8 March</h3>
+        <h3 className="font-medium mb-3 text-gray-800 dark:text-gray-200">8 March</h3>
         {agendaItems.map(item => (
           <div key={item.id} className="agenda-item">
-            <p className="font-medium">{item.date}</p>
-            <p className="text-gray-600">{item.title}</p>
+            <p className="font-medium text-gray-800 dark:text-gray-200">{item.date}</p>
+            <p className="text-gray-600 dark:text-gray-400">{item.title}</p>
           </div>
         ))}
 
         <div className="text-center mt-6">
-          <Button variant="outline" className="text-primary">
+          <Button variant="outline" className="text-primary border-primary hover:bg-primary/10">
             <Plus className="h-4 w-4 mr-2" />
             Add New Agenda
           </Button>
