@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search, MessageSquare, Users, Phone, Video, Calendar, Settings } from 'lucide-react';
@@ -6,16 +5,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-// Sample contact data
+// Sample contact data with Brazilian names
 const contacts = [
-  { id: 1, name: 'Fikri Ruslandi', avatar: '/lovable-uploads/551d19b2-4705-4bf3-86ff-0725079998cf.png', lastMessage: 'Can you please check the latest design?', online: true, unread: 0 },
-  { id: 2, name: 'Moch Ramdhani', avatar: '', lastMessage: 'Let me know when you\'re free', online: true, unread: 3 },
-  { id: 3, name: 'Abu Abdullah Nugraha', avatar: '', lastMessage: 'Meeting scheduled at 3 PM', online: true, unread: 0 },
-  { id: 4, name: 'Muhammad Fauzi', avatar: '', lastMessage: 'Thanks for the update!', online: false, unread: 0 },
-  { id: 5, name: 'Norman Tri Galindez', avatar: '', lastMessage: 'Looking forward to collaborate', online: false, unread: 0 },
-  { id: 6, name: 'Bagan Sitrah', avatar: '', lastMessage: 'Project deadline is tomorrow', online: true, unread: 2 },
-  { id: 7, name: 'Saeful Rahman', avatar: '', lastMessage: 'Could you review my PR?', online: false, unread: 0 },
-  { id: 8, name: 'Muhammad Aldansyah', avatar: '', lastMessage: 'Great work on the presentation!', online: false, unread: 0 },
+  { id: 1, name: 'João Silva', avatar: '/lovable-uploads/551d19b2-4705-4bf3-86ff-0725079998cf.png', lastMessage: 'Can you please check the latest design?', online: true, unread: 0 },
+  { id: 2, name: 'Thiago Oliveira', avatar: '', lastMessage: 'Let me know when you\'re free', online: true, unread: 3 },
+  { id: 3, name: 'Rafael Souza', avatar: '', lastMessage: 'Meeting scheduled at 3 PM', online: true, unread: 0 },
+  { id: 4, name: 'Bruno Costa', avatar: '', lastMessage: 'Thanks for the update!', online: false, unread: 0 },
+  { id: 5, name: 'Pedro Santos', avatar: '', lastMessage: 'Looking forward to collaborate', online: false, unread: 0 },
+  { id: 6, name: 'Marcos Ferreira', avatar: '', lastMessage: 'Project deadline is tomorrow', online: true, unread: 2 },
+  { id: 7, name: 'Gabriel Almeida', avatar: '', lastMessage: 'Could you review my PR?', online: false, unread: 0 },
+  { id: 8, name: 'Lucas Pereira', avatar: '', lastMessage: 'Great work on the presentation!', online: false, unread: 0 },
 ];
 
 const ContactSidebar = () => {

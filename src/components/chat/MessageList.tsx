@@ -79,7 +79,7 @@ const MessageList: React.FC<MessageListProps> = ({
             {message.sender !== 'user' && (
               <Avatar className="mt-1">
                 <AvatarImage src="/lovable-uploads/551d19b2-4705-4bf3-86ff-0725079998cf.png" />
-                <AvatarFallback>AN</AvatarFallback>
+                <AvatarFallback>RS</AvatarFallback>
               </Avatar>
             )}
             <div className={`flex-1 ${message.sender === 'user' ? 'flex justify-end' : ''}`}>
@@ -94,7 +94,7 @@ const MessageList: React.FC<MessageListProps> = ({
             {message.sender === 'user' && (
               <Avatar className="mt-1">
                 <AvatarImage src="" />
-                <AvatarFallback>ME</AvatarFallback>
+                <AvatarFallback>EU</AvatarFallback>
               </Avatar>
             )}
           </div>

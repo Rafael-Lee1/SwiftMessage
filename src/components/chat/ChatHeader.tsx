@@ -31,11 +31,11 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ isBotAvailable }) => {
       <div className="flex items-center gap-3">
         <Avatar>
           <AvatarImage src="/lovable-uploads/551d19b2-4705-4bf3-86ff-0725079998cf.png" />
-          <AvatarFallback>AN</AvatarFallback>
+          <AvatarFallback>RS</AvatarFallback>
         </Avatar>
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-800 dark:text-gray-100">Abu Abdullah Nugraha</span>
+            <span className="font-medium text-gray-800 dark:text-gray-100">Rafael Souza</span>
             <Badge variant="outline" className="bg-blue-100 text-blue-600 text-xs font-normal border-0 dark:bg-blue-900 dark:text-blue-200">
               NEW
             </Badge>
