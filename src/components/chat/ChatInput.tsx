@@ -101,16 +101,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="p-4 bg-white border-t border-gray-200">
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 bg-gray-50 rounded-full border border-gray-200 pl-4 pr-2 py-1">
+    <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600 pl-4 pr-2 py-1">
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-gray-200"
+          className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
           onClick={() => fileInputRef.current?.click()}
         >
-          <Paperclip className="h-5 w-5 text-gray-500" />
+          <Paperclip className="h-5 w-5 text-gray-500 dark:text-gray-300" />
           <input
             ref={fileInputRef}
             type="file"
@@ -124,10 +124,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
           type="button"
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-gray-200"
+          className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
           onClick={() => fileInputRef.current?.click()}
         >
-          <ImageIcon className="h-5 w-5 text-gray-500" />
+          <ImageIcon className="h-5 w-5 text-gray-500 dark:text-gray-300" />
         </Button>
         
         <Input
@@ -137,25 +137,25 @@ const ChatInput: React.FC<ChatInputProps> = ({
             ? `File selected: ${selectedFile.name}`
             : "Type your message..."
           }
-          className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
+          className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-gray-800 dark:text-white"
         />
         
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-gray-200"
+          className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
         >
-          <Smile className="h-5 w-5 text-gray-500" />
+          <Smile className="h-5 w-5 text-gray-500 dark:text-gray-300" />
         </Button>
         
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-gray-200"
+          className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
         >
-          <Mic className="h-5 w-5 text-gray-500" />
+          <Mic className="h-5 w-5 text-gray-500 dark:text-gray-300" />
         </Button>
         
         <Button 
