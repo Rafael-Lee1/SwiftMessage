@@ -135,7 +135,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           onChange={handleInputChange}
           placeholder={selectedFile 
             ? `File selected: ${selectedFile.name}`
-            : "Type your message..."
+            : "Type /gemini followed by your message to use Gemini AI..."
           }
           className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-gray-800 dark:text-white"
         />
