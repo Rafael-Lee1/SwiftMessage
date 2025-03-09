@@ -3,7 +3,7 @@ import { Message } from '@/types/chat';
 import { fetchGeminiResponse } from '@/utils/chat/geminiUtils';
 import { fetchAIResponse } from '@/utils/chat/aiUtils';
 import { fetchClaudeResponse } from '@/utils/chat/claudeUtils';
-import { ToastAPI } from '@/hooks/use-toast';
+import type { ToastAPI } from '@/hooks/use-toast';
 
 class MessageService {
   async sendGeminiMessage(
