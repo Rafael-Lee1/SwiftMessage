@@ -27,7 +27,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ isBotAvailable }) => {
   };
 
   return (
-    <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 bg-white">
+    <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       <div className="flex items-center gap-3">
         <Avatar>
           <AvatarImage src="/lovable-uploads/551d19b2-4705-4bf3-86ff-0725079998cf.png" />
@@ -35,36 +35,37 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ isBotAvailable }) => {
         </Avatar>
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-medium">Abu Abdullah Nugraha</span>
-            <Badge variant="outline" className="bg-blue-100 text-blue-600 text-xs font-normal border-0">
+            <span className="font-medium text-gray-800 dark:text-gray-100">Abu Abdullah Nugraha</span>
+            <Badge variant="outline" className="bg-blue-100 text-blue-600 text-xs font-normal border-0 dark:bg-blue-900 dark:text-blue-200">
               NEW
             </Badge>
           </div>
           <div className="flex items-center gap-1">
             <span className="contact-status-online"></span>
-            <span className="text-xs text-gray-500">Online</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">Online</span>
           </div>
         </div>
       </div>
       
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Search className="h-5 w-5 text-gray-500" />
+        <Button variant="ghost" size="icon" className="rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+          <Search className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Phone className="h-5 w-5 text-gray-500" />
+        <Button variant="ghost" size="icon" className="rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+          <Phone className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Video className="h-5 w-5 text-gray-500" />
+        <Button variant="ghost" size="icon" className="rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+          <Video className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <MoreVertical className="h-5 w-5 text-gray-500" />
+        <Button variant="ghost" size="icon" className="rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+          <MoreVertical className="h-5 w-5" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
           onClick={handleThemeChange}
-          className="transition-colors rounded-full ml-2"
+          className="transition-colors rounded-full ml-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>

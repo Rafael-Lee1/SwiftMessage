@@ -52,8 +52,8 @@ const MessageBubble = ({
           'rounded-2xl px-4 py-2 space-y-2 relative group',
           isSystem && 'bg-muted text-muted-foreground text-sm',
           isUser && 'bg-primary text-primary-foreground',
-          isBot && 'bg-white border border-gray-200 text-gray-800',
-          !isUser && !isSystem && !isBot && 'bg-white border border-gray-200 text-gray-800'
+          isBot && 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100',
+          !isUser && !isSystem && !isBot && 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100'
         )}
       >
         <MessageContent message={message} />

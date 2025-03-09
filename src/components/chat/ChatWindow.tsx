@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import MessageList from './MessageList';
@@ -47,9 +47,9 @@ const ChatContent = () => {
 
 const ChatWindow = () => {
   return (
-    <div className="chat-app-layout bg-gray-100">
+    <div className="chat-app-layout bg-gray-100 dark:bg-gray-900">
       <ContactSidebar />
-      <div className="bg-white shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
         <ChatProvider>
           <ChatContent />
         </ChatProvider>

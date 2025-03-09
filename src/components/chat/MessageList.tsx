@@ -32,33 +32,47 @@ const MessageList: React.FC<MessageListProps> = ({
 }) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
+
+  // Enhanced scroll to bottom function
+  const scrollToBottom = () => {
+    if (scrollAreaRef.current) {
+      const scrollElement = scrollAreaRef.current;
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+    }
+    
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Scroll to bottom whenever messages, typing status, or bot typing status changes
   useEffect(() => {
-    const scrollToBottom = () => {
-      if (scrollAreaRef.current) {
-        const scrollElement = scrollAreaRef.current;
-        scrollElement.scrollTop = scrollElement.scrollHeight;
-      }
-      
-      // Alternative method using the lastMessageRef if the above doesn't work
-      if (lastMessageRef.current) {
-        lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-    };
-
-    // Use both setTimeout and requestAnimationFrame for more reliable scrolling
+    // Using both setTimeout and requestAnimationFrame for more reliable scrolling
     // This ensures DOM has fully updated before attempting to scroll
     const timeoutId = setTimeout(() => {
       requestAnimationFrame(scrollToBottom);
+      // Add another timeout to ensure we catch any delayed rendering
+      setTimeout(scrollToBottom, 100);
     }, 0);
 
     return () => clearTimeout(timeoutId);
   }, [messages, isTyping, isBotTyping]);
 
   return (
-    <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 bg-gray-50">
+    <ScrollArea 
+      ref={scrollAreaRef} 
+      className="flex-1 p-4 bg-gray-50 dark:bg-gray-900"
+      onScroll={(e) => {
+        // Add a manual scroll check - if user has scrolled up, don't auto-scroll
+        const element = e.currentTarget;
+        const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 100;
+        if (!isAtBottom) {
+          // User has scrolled up, don't auto-scroll
+          // You might want to add a "scroll to bottom" button here
+        }
+      }}
+    >
       <div className="space-y-4 mx-auto max-w-3xl">
         {messages.map((message, index) => (
           <div key={message.id} className="flex items-start gap-3">
@@ -101,11 +115,12 @@ const MessageList: React.FC<MessageListProps> = ({
               onEmojiClick={(emojiData) => {
                 if (selectedMessageForReaction) {
                   handleReaction(selectedMessageForReaction, emojiData.emoji);
+                  setSelectedMessageForReaction(null);
                 }
               }}
               width="100%"
               height={400}
-              theme={theme === 'dark' ? 'dark' as Theme : 'light' as Theme}
+              theme={resolvedTheme === 'dark' ? 'dark' as Theme : 'light' as Theme}
             />
           </PopoverContent>
         </Popover>

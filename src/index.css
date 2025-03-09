@@ -53,6 +53,7 @@
 
   * {
     @apply border-border;
+    scroll-behavior: smooth;
   }
 
   body {
@@ -67,7 +68,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: transparent;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
@@ -176,3 +177,4 @@
     @apply aspect-square flex items-center justify-center text-sm rounded-full;
   }
 }
+
