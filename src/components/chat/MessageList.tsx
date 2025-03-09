@@ -6,6 +6,7 @@ import MessageBubble from './MessageBubble';
 import UserTypingIndicator from './UserTypingIndicator';
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from 'next-themes';
 
 interface MessageListProps {
   messages: Message[];
@@ -30,6 +31,7 @@ const MessageList: React.FC<MessageListProps> = ({
 }) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
 
   // Scroll to bottom whenever messages, typing status, or bot typing status changes
   useEffect(() => {
@@ -87,7 +89,7 @@ const MessageList: React.FC<MessageListProps> = ({
               }}
               width="100%"
               height={400}
-              theme={document.documentElement.classList.contains('dark') ? 'dark' as Theme : 'light' as Theme}
+              theme={theme === 'dark' ? 'dark' as Theme : 'light' as Theme}
             />
           </PopoverContent>
         </Popover>
