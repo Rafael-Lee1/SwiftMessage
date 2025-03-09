@@ -13,7 +13,7 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
+    --primary: 206 83% 45%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -26,7 +26,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 
   .dark {
@@ -36,7 +36,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 206 83% 45%;
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -140,5 +140,39 @@
     );
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
+  }
+
+  .chat-app-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr 300px;
+    gap: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .contact-active {
+    @apply bg-primary/10 border-l-4 border-primary;
+  }
+
+  .contact-status-online {
+    @apply h-2 w-2 rounded-full bg-green-500;
+  }
+
+  .date-active {
+    @apply bg-primary text-white rounded-full;
+  }
+
+  .agenda-item {
+    @apply border-l-4 border-primary pl-3 mb-3 text-sm;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .calendar-cell {
+    @apply aspect-square flex items-center justify-center text-sm rounded-full;
   }
 }

@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import MessageList from './MessageList';
+import ContactSidebar from './ContactSidebar';
+import AgendaSidebar from './AgendaSidebar';
 import { ChatProvider, useChatContext } from '@/contexts/ChatContext';
 
 const ChatContent = () => {
@@ -20,7 +22,7 @@ const ChatContent = () => {
   } = useChatContext();
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <ChatHeader isBotAvailable={true} />
       
       <MessageList 
@@ -39,16 +41,20 @@ const ChatContent = () => {
         isTyping={isTyping}
         setIsTyping={setIsTyping}
       />
-    </>
+    </div>
   );
 };
 
 const ChatWindow = () => {
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto p-4 glass rounded-lg shadow-lg">
-      <ChatProvider>
-        <ChatContent />
-      </ChatProvider>
+    <div className="chat-app-layout bg-gray-100">
+      <ContactSidebar />
+      <div className="bg-white shadow-sm overflow-hidden">
+        <ChatProvider>
+          <ChatContent />
+        </ChatProvider>
+      </div>
+      <AgendaSidebar />
     </div>
   );
 };

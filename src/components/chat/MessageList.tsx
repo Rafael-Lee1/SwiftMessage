@@ -7,6 +7,7 @@ import UserTypingIndicator from './UserTypingIndicator';
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { useTheme } from 'next-themes';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface MessageListProps {
   messages: Message[];
@@ -57,17 +58,32 @@ const MessageList: React.FC<MessageListProps> = ({
   }, [messages, isTyping, isBotTyping]);
 
   return (
-    <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-      <div className="space-y-4">
+    <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 bg-gray-50">
+      <div className="space-y-4 mx-auto max-w-3xl">
         {messages.map((message, index) => (
-          <MessageBubble
-            key={message.id}
-            message={message}
-            onReactionClick={() => setSelectedMessageForReaction(message.id)}
-            onReaction={(emoji) => handleReaction(message.id, emoji)}
-            onShareClick={handleShareMessage ? () => handleShareMessage(message.id) : undefined}
-            onBookmarkClick={handleBookmarkMessage ? () => handleBookmarkMessage(message.id) : undefined}
-          />
+          <div key={message.id} className="flex items-start gap-3">
+            {message.sender !== 'user' && (
+              <Avatar className="mt-1">
+                <AvatarImage src="/lovable-uploads/551d19b2-4705-4bf3-86ff-0725079998cf.png" />
+                <AvatarFallback>AN</AvatarFallback>
+              </Avatar>
+            )}
+            <div className={`flex-1 ${message.sender === 'user' ? 'flex justify-end' : ''}`}>
+              <MessageBubble
+                message={message}
+                onReactionClick={() => setSelectedMessageForReaction(message.id)}
+                onReaction={(emoji) => handleReaction(message.id, emoji)}
+                onShareClick={handleShareMessage ? () => handleShareMessage(message.id) : undefined}
+                onBookmarkClick={handleBookmarkMessage ? () => handleBookmarkMessage(message.id) : undefined}
+              />
+            </div>
+            {message.sender === 'user' && (
+              <Avatar className="mt-1">
+                <AvatarImage src="" />
+                <AvatarFallback>ME</AvatarFallback>
+              </Avatar>
+            )}
+          </div>
         ))}
         
         {/* Only show typing indicators when someone is actually typing */}

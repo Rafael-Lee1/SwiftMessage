@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, Image as ImageIcon } from "lucide-react";
+import { Paperclip, Image as ImageIcon, Smile, Mic, Send } from "lucide-react";
 import { validateFile } from '@/utils/chat/fileUtils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -101,38 +101,73 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2 p-2">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="shrink-0"
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <ImageIcon className="h-5 w-5" />
-        <input
-          ref={fileInputRef}
-          type="file"
-          className="hidden"
-          accept="image/*,.pdf,.doc,.docx"
-          onChange={handleFileSelect}
+    <div className="p-4 bg-white border-t border-gray-200">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 bg-gray-50 rounded-full border border-gray-200 pl-4 pr-2 py-1">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="rounded-full hover:bg-gray-200"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Paperclip className="h-5 w-5 text-gray-500" />
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept="image/*,.pdf,.doc,.docx"
+            onChange={handleFileSelect}
+          />
+        </Button>
+        
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="rounded-full hover:bg-gray-200"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <ImageIcon className="h-5 w-5 text-gray-500" />
+        </Button>
+        
+        <Input
+          value={newMessage}
+          onChange={handleInputChange}
+          placeholder={selectedFile 
+            ? `File selected: ${selectedFile.name}`
+            : "Type your message..."
+          }
+          className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
         />
-      </Button>
-      
-      <Input
-        value={newMessage}
-        onChange={handleInputChange}
-        placeholder={selectedFile 
-          ? `File selected: ${selectedFile.name}`
-          : "Type a message... (Use /gemini to chat with AI)"
-        }
-        className="bg-background/50"
-      />
-      
-      <Button type="submit" size="icon" disabled={!newMessage.trim() && !selectedFile}>
-        <Send className="h-4 w-4" />
-      </Button>
-    </form>
+        
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="rounded-full hover:bg-gray-200"
+        >
+          <Smile className="h-5 w-5 text-gray-500" />
+        </Button>
+        
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="rounded-full hover:bg-gray-200"
+        >
+          <Mic className="h-5 w-5 text-gray-500" />
+        </Button>
+        
+        <Button 
+          type="submit" 
+          size="icon" 
+          className="rounded-full" 
+          disabled={!newMessage.trim() && !selectedFile}
+        >
+          <Send className="h-4 w-4" />
+        </Button>
+      </form>
+    </div>
   );
 };
 

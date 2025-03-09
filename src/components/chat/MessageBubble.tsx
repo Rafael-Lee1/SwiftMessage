@@ -43,17 +43,17 @@ const MessageBubble = ({
   return (
     <div
       className={cn(
-        'flex message-appear',
-        isUser ? 'justify-end' : 'justify-start'
+        'message-appear max-w-[70%]',
+        isUser ? 'ml-auto' : ''
       )}
     >
       <div
         className={cn(
-          'max-w-[80%] rounded-2xl px-4 py-2 space-y-2 relative group',
+          'rounded-2xl px-4 py-2 space-y-2 relative group',
           isSystem && 'bg-muted text-muted-foreground text-sm',
           isUser && 'bg-primary text-primary-foreground',
-          isBot && 'bg-secondary text-secondary-foreground',
-          !isUser && !isSystem && !isBot && 'bg-secondary text-secondary-foreground'
+          isBot && 'bg-white border border-gray-200 text-gray-800',
+          !isUser && !isSystem && !isBot && 'bg-white border border-gray-200 text-gray-800'
         )}
       >
         <MessageContent message={message} />
