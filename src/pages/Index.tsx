@@ -14,12 +14,12 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted p-4 transition-colors duration-300">
       <Button
         variant="ghost"
         size="icon"
         onClick={handleSignOut}
-        className="fixed top-4 right-4"
+        className="fixed top-4 right-4 z-10"
       >
         <LogOut className="h-4 w-4" />
       </Button>

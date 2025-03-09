@@ -35,7 +35,7 @@ const MessageList: React.FC<MessageListProps> = ({
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isTyping, isBotTyping]);
 
   return (
     <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
@@ -55,7 +55,7 @@ const MessageList: React.FC<MessageListProps> = ({
       
       {selectedMessageForReaction && (
         <Popover open={true} onOpenChange={() => setSelectedMessageForReaction(null)}>
-          <PopoverContent side="top" align="end" className="w-full p-0">
+          <PopoverContent side="top" align="end" className="w-full p-0 shadow-md border-0">
             <EmojiPicker
               onEmojiClick={(emojiData) => {
                 if (selectedMessageForReaction) {
@@ -64,6 +64,7 @@ const MessageList: React.FC<MessageListProps> = ({
               }}
               width="100%"
               height={400}
+              theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
             />
           </PopoverContent>
         </Popover>

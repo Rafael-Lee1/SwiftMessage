@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import type { Message } from '@/types/chat';
 import { useTheme } from 'next-themes';
@@ -9,7 +10,6 @@ import { loadMessagesFromLocalStorage, saveMessagesToLocalStorage } from '@/util
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import MessageList from './MessageList';
-import { Share2 } from 'lucide-react';
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState<Message[]>(loadMessagesFromLocalStorage);
@@ -31,28 +31,38 @@ const ChatWindow = () => {
   }, [setTheme]);
 
   const handleReaction = async (messageId: string, emoji: string) => {
-    const timestamp = new Date();
-    const userId = (await supabase.auth.getUser()).data.user?.id || 'anonymous';
+    try {
+      const timestamp = new Date();
+      const { data } = await supabase.auth.getUser();
+      const userId = data?.user?.id || 'anonymous';
 
-    setMessages(prevMessages => 
-      prevMessages.map(msg => {
-        if (msg.id === messageId) {
-          const reactions = [...(msg.reactions || [])];
-          const existingReactionIndex = reactions.findIndex(r => r.userId === userId);
-          
-          if (existingReactionIndex >= 0) {
-            reactions[existingReactionIndex] = { emoji, userId, timestamp };
-          } else {
-            reactions.push({ emoji, userId, timestamp });
+      setMessages(prevMessages => 
+        prevMessages.map(msg => {
+          if (msg.id === messageId) {
+            const reactions = [...(msg.reactions || [])];
+            const existingReactionIndex = reactions.findIndex(r => r.userId === userId);
+            
+            if (existingReactionIndex >= 0) {
+              reactions[existingReactionIndex] = { emoji, userId, timestamp };
+            } else {
+              reactions.push({ emoji, userId, timestamp });
+            }
+            
+            return { ...msg, reactions };
           }
-          
-          return { ...msg, reactions };
-        }
-        return msg;
-      })
-    );
-    
-    setSelectedMessageForReaction(null);
+          return msg;
+        })
+      );
+      
+      setSelectedMessageForReaction(null);
+    } catch (error) {
+      console.error('Error handling reaction:', error);
+      toast({
+        title: 'Error adding reaction',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleShareMessage = (messageId: string) => {
@@ -140,7 +150,12 @@ const ChatWindow = () => {
         }
       }
     } catch (error: any) {
-      throw error;
+      console.error('Error sending message:', error);
+      toast({
+        title: 'Error sending message',
+        description: error.message || 'Please try again',
+        variant: 'destructive',
+      });
     }
   };
 
