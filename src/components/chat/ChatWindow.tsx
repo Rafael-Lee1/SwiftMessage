@@ -5,6 +5,7 @@ import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchAIResponse } from '@/utils/chat/aiUtils';
+import { fetchClaudeResponse } from '@/utils/chat/claudeUtils';
 import { handleFileUpload } from '@/utils/chat/fileUtils';
 import { loadMessagesFromLocalStorage, saveMessagesToLocalStorage } from '@/utils/chat/storageUtils';
 import ChatHeader from './ChatHeader';
@@ -142,6 +143,29 @@ const ChatWindow = () => {
           console.error('AI chat error:', error);
           toast({
             title: 'AI Assistant Error',
+            description: 'Could not get a response. Please try again.',
+            variant: 'destructive',
+          });
+        } finally {
+          setIsBotTyping(false);
+        }
+      } else if (newMessageText.trim().toLowerCase().startsWith('/claude')) {
+        setIsBotTyping(true);
+        try {
+          const claudeResponse = await fetchClaudeResponse(newMessageText.slice(7).trim());
+          
+          const botMessage: Message = {
+            id: crypto.randomUUID(),
+            text: claudeResponse,
+            sender: 'bot',
+            timestamp: new Date(),
+          };
+
+          setMessages(prev => [...prev, botMessage]);
+        } catch (error) {
+          console.error('Claude chat error:', error);
+          toast({
+            title: 'Claude Assistant Error',
             description: 'Could not get a response. Please try again.',
             variant: 'destructive',
           });

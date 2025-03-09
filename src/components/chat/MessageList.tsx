@@ -5,7 +5,7 @@ import { Message } from '@/types/chat';
 import MessageBubble from './MessageBubble';
 import UserTypingIndicator from './UserTypingIndicator';
 import { Popover, PopoverContent } from "@/components/ui/popover";
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 
 interface MessageListProps {
   messages: Message[];
@@ -64,7 +64,7 @@ const MessageList: React.FC<MessageListProps> = ({
               }}
               width="100%"
               height={400}
-              theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
+              theme={document.documentElement.classList.contains('dark') ? 'dark' as Theme : 'light' as Theme}
             />
           </PopoverContent>
         </Popover>
