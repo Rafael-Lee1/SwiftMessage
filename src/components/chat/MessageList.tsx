@@ -50,7 +50,10 @@ const MessageList: React.FC<MessageListProps> = ({
             onBookmarkClick={handleBookmarkMessage ? () => handleBookmarkMessage(message.id) : undefined}
           />
         ))}
-        {(isTyping || isBotTyping) && <UserTypingIndicator />}
+        
+        {/* Only show typing indicators when someone is actually typing */}
+        {isTyping && <UserTypingIndicator isUser={true} />}
+        {isBotTyping && <UserTypingIndicator isBot={true} />}
       </div>
       
       {selectedMessageForReaction && (
