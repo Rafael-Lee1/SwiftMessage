@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send, Image as ImageIcon } from "lucide-react";
@@ -20,11 +20,28 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const [newMessage, setNewMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
+
+  // Clear typing indicator when component unmounts
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      setIsTyping(false);
+    };
+  }, [setIsTyping]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() && !selectedFile) return;
+
+    // Reset typing indicator when message is sent
+    setIsTyping(false);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
 
     try {
       await onSendMessage(newMessage, selectedFile);
@@ -57,6 +74,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
     e.target.value = '';
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    setNewMessage(text);
+    
+    // Only show typing indicator if there's text
+    if (text.length > 0) {
+      setIsTyping(true);
+      
+      // Clear any existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      
+      // Set a new timeout to clear the typing indicator after 1.5 seconds of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        setIsTyping(false);
+      }, 1500);
+    } else {
+      // If the input is empty, immediately hide the typing indicator
+      setIsTyping(false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="flex items-center gap-2 p-2">
       <Button
@@ -78,10 +121,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       
       <Input
         value={newMessage}
-        onChange={(e) => {
-          setNewMessage(e.target.value);
-          setIsTyping(e.target.value.length > 0);
-        }}
+        onChange={handleInputChange}
         placeholder={selectedFile 
           ? `File selected: ${selectedFile.name}`
           : "Type a message... (Use /gemini to chat with AI)"
