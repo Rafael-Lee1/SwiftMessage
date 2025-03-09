@@ -3,14 +3,14 @@ import { Message } from '@/types/chat';
 import { fetchGeminiResponse } from '@/utils/chat/geminiUtils';
 import { fetchAIResponse } from '@/utils/chat/aiUtils';
 import { fetchClaudeResponse } from '@/utils/chat/claudeUtils';
-import type { ToastAPI } from '@/hooks/use-toast';
+import type { toast as ToastFunction } from '@/hooks/use-toast';
 
 class MessageService {
   async sendGeminiMessage(
     messageText: string,
     setIsBotTyping: (value: boolean) => void,
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
-    toast: ToastAPI
+    toast: typeof ToastFunction
   ): Promise<void> {
     setIsBotTyping(true);
     try {
@@ -41,7 +41,7 @@ class MessageService {
     messageText: string,
     setIsBotTyping: (value: boolean) => void,
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
-    toast: ToastAPI
+    toast: typeof ToastFunction
   ): Promise<void> {
     setIsBotTyping(true);
     try {
@@ -71,7 +71,7 @@ class MessageService {
     messageText: string,
     setIsBotTyping: (value: boolean) => void,
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
-    toast: ToastAPI
+    toast: typeof ToastFunction
   ): Promise<void> {
     setIsBotTyping(true);
     try {

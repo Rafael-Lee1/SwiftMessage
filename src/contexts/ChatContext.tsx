@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Message } from '@/types/chat';
 import { useTheme } from 'next-themes';
-import { useToast } from '@/hooks/use-toast';
+import { useToast, toast } from '@/hooks/use-toast';
 import { loadMessagesFromLocalStorage, saveMessagesToLocalStorage } from '@/utils/chat/storageUtils';
 
 interface ChatContextType {
@@ -35,7 +35,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isTyping, setIsTyping] = useState(false);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [selectedMessageForReaction, setSelectedMessageForReaction] = useState<string | null>(null);
-  const { toast } = useToast();
+  const { toast: toastFn } = useToast();
   const { setTheme } = useTheme();
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSelectedMessageForReaction(null);
     } catch (error) {
       console.error('Error handling reaction:', error);
-      toast({
+      toastFn({
         title: 'Error adding reaction',
         description: 'Please try again later',
         variant: 'destructive',
@@ -88,7 +88,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const message = messages.find(msg => msg.id === messageId);
     if (message) {
       navigator.clipboard.writeText(message.text);
-      toast({
+      toastFn({
         title: "Message copied to clipboard",
         description: "You can now share it with others"
       });
@@ -102,12 +102,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!bookmarks.some((bookmark: Message) => bookmark.id === messageId)) {
         bookmarks.push(message);
         localStorage.setItem('bookmarkedMessages', JSON.stringify(bookmarks));
-        toast({
+        toastFn({
           title: "Message bookmarked",
           description: "You can access it later from your bookmarks"
         });
       } else {
-        toast({
+        toastFn({
           title: "Already bookmarked",
           description: "This message is already in your bookmarks"
         });
@@ -126,7 +126,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           fileUrl = await fileHandlingService.default.uploadFile(selectedFile);
         } catch (error: any) {
-          toast({
+          toastFn({
             title: 'Error uploading file',
             description: error.message || 'Please try again',
             variant: 'destructive',
@@ -172,7 +172,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error: any) {
       console.error('Error sending message:', error);
-      toast({
+      toastFn({
         title: 'Error sending message',
         description: error.message || 'Please try again',
         variant: 'destructive',

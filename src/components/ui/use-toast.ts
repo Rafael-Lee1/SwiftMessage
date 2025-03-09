@@ -1,4 +1,4 @@
 
-import { useToast, toast, type ToastAPI } from "@/hooks/use-toast";
+import { useToast, toast, type ToastAPI, type Toast, type ToastReturn } from "@/hooks/use-toast";
 
-export { useToast, toast, type ToastAPI };
+export { useToast, toast, type ToastAPI, type Toast, type ToastReturn };

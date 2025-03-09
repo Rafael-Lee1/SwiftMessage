@@ -54,9 +54,20 @@ interface State {
   toasts: ToasterToast[]
 }
 
+// This defines the expected shape of a toast function
+export type Toast = Omit<ToasterToast, "id">
+
+// This defines the return type of the toast function
+export interface ToastReturn {
+  id: string
+  dismiss: () => void
+  update: (props: ToasterToast) => void
+}
+
+// This defines the full API that gets exposed by useToast()
 export interface ToastAPI {
-  toast: (props: any) => void;
-  dismiss: (toastId?: string) => void;
+  toast: (props: Toast) => ToastReturn
+  dismiss: (toastId?: string) => void
 }
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
@@ -143,9 +154,7 @@ function dispatch(action: Action) {
   })
 }
 
-type Toast = Omit<ToasterToast, "id">
-
-function toast({ ...props }: Toast) {
+function toast({ ...props }: Toast): ToastReturn {
   const id = genId()
 
   const update = (props: ToasterToast) =>
@@ -174,7 +183,11 @@ function toast({ ...props }: Toast) {
   }
 }
 
-function useToast() {
+function useToast(): {
+  toasts: ToasterToast[]
+  toast: typeof toast
+  dismiss: (toastId?: string) => void
+} {
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {
