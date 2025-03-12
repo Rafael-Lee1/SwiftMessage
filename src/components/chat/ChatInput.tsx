@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Paperclip, Image as ImageIcon, Smile, Mic, Send } from "lucide-react";
 import { validateFile } from '@/utils/chat/fileUtils';
 import { useToast } from '@/hooks/use-toast';
+import { useMobile } from '@/hooks/use-mobile';
 
 interface ChatInputProps {
   onSendMessage: (text: string, file: File | null) => Promise<void>;
@@ -22,6 +23,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
+  const { isMobile } = useMobile();
 
   // Clear typing indicator when component unmounts
   useEffect(() => {
@@ -101,13 +103,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600 pl-4 pr-2 py-1">
+    <div className="p-2 sm:p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 w-full fixed bottom-0 md:static">
+      <form onSubmit={handleSubmit} className="flex items-center gap-1 sm:gap-2 bg-gray-50 dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600 pl-2 sm:pl-4 pr-1 sm:pr-2 py-1">
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+          className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 hidden sm:flex"
           onClick={() => fileInputRef.current?.click()}
         >
           <Paperclip className="h-5 w-5 text-gray-500 dark:text-gray-300" />
@@ -137,26 +139,30 @@ const ChatInput: React.FC<ChatInputProps> = ({
             ? `File selected: ${selectedFile.name}`
             : "Type /gemini followed by your message to use Gemini AI..."
           }
-          className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-gray-800 dark:text-white"
+          className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-gray-800 dark:text-white text-sm sm:text-base"
         />
         
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
-        >
-          <Smile className="h-5 w-5 text-gray-500 dark:text-gray-300" />
-        </Button>
+        {!isMobile && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 hidden sm:flex"
+          >
+            <Smile className="h-5 w-5 text-gray-500 dark:text-gray-300" />
+          </Button>
+        )}
         
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
-        >
-          <Mic className="h-5 w-5 text-gray-500 dark:text-gray-300" />
-        </Button>
+        {!isMobile && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 hidden sm:flex"
+          >
+            <Mic className="h-5 w-5 text-gray-500 dark:text-gray-300" />
+          </Button>
+        )}
         
         <Button 
           type="submit" 

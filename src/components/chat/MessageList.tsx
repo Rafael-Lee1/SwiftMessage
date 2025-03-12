@@ -8,6 +8,7 @@ import { Popover, PopoverContent } from "@/components/ui/popover";
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { useTheme } from 'next-themes';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useMobile } from '@/hooks/use-mobile';
 
 interface MessageListProps {
   messages: Message[];
@@ -33,6 +34,7 @@ const MessageList: React.FC<MessageListProps> = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
+  const { isMobile } = useMobile();
 
   // Enhanced scroll to bottom function
   const scrollToBottom = () => {
@@ -62,7 +64,7 @@ const MessageList: React.FC<MessageListProps> = ({
   return (
     <ScrollArea 
       ref={scrollAreaRef} 
-      className="flex-1 p-4 bg-gray-50 dark:bg-gray-900"
+      className="flex-1 p-2 sm:p-4 pb-20 sm:pb-4 bg-gray-50 dark:bg-gray-900"
       onScroll={(e) => {
         // Add a manual scroll check - if user has scrolled up, don't auto-scroll
         const element = e.currentTarget;
@@ -73,11 +75,11 @@ const MessageList: React.FC<MessageListProps> = ({
         }
       }}
     >
-      <div className="space-y-4 mx-auto max-w-3xl">
+      <div className="space-y-3 mx-auto max-w-3xl">
         {messages.map((message, index) => (
-          <div key={message.id} className="flex items-start gap-3">
+          <div key={message.id} className="flex items-start gap-2 sm:gap-3">
             {message.sender !== 'user' && (
-              <Avatar className="mt-1">
+              <Avatar className="mt-1 h-7 w-7 sm:h-8 sm:w-8">
                 <AvatarImage src="/lovable-uploads/551d19b2-4705-4bf3-86ff-0725079998cf.png" />
                 <AvatarFallback>RS</AvatarFallback>
               </Avatar>
@@ -92,9 +94,9 @@ const MessageList: React.FC<MessageListProps> = ({
               />
             </div>
             {message.sender === 'user' && (
-              <Avatar className="mt-1">
+              <Avatar className="mt-1 h-7 w-7 sm:h-8 sm:w-8">
                 <AvatarImage src="" />
-                <AvatarFallback>EU</AvatarFallback>
+                <AvatarFallback>VC</AvatarFallback>
               </Avatar>
             )}
           </div>
@@ -110,7 +112,7 @@ const MessageList: React.FC<MessageListProps> = ({
       
       {selectedMessageForReaction && (
         <Popover open={true} onOpenChange={() => setSelectedMessageForReaction(null)}>
-          <PopoverContent side="top" align="end" className="w-full p-0 shadow-md border-0">
+          <PopoverContent side="top" align="end" className="w-full md:w-auto p-0 shadow-md border-0">
             <EmojiPicker
               onEmojiClick={(emojiData) => {
                 if (selectedMessageForReaction) {
@@ -118,8 +120,8 @@ const MessageList: React.FC<MessageListProps> = ({
                   setSelectedMessageForReaction(null);
                 }
               }}
-              width="100%"
-              height={400}
+              width={isMobile ? "280px" : "320px"}
+              height={isMobile ? 300 : 400}
               theme={resolvedTheme === 'dark' ? 'dark' as Theme : 'light' as Theme}
             />
           </PopoverContent>

@@ -57,7 +57,7 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased overflow-hidden;
     font-feature-settings: "rlig" 1, "calt" 1;
     font-family: 'Inter', sans-serif;
   }
@@ -151,6 +151,12 @@
     overflow: hidden;
   }
 
+  @media (max-width: 768px) {
+    .chat-app-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .contact-active {
     @apply bg-primary/10 border-l-4 border-primary;
   }
@@ -176,5 +182,27 @@
   .calendar-cell {
     @apply aspect-square flex items-center justify-center text-sm rounded-full;
   }
-}
+  
+  /* Mobile-specific styles */
+  @media (max-width: 640px) {
+    .mobile-menu {
+      @apply fixed top-0 left-0 h-screen w-[250px] z-50 bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300;
+    }
+    
+    .mobile-menu-open {
+      @apply transform translate-x-0;
+    }
+    
+    .mobile-menu-closed {
+      @apply transform -translate-x-full;
+    }
+    
+    .mobile-overlay {
+      @apply fixed inset-0 bg-black/50 z-40;
+    }
 
+    .chat-content-area {
+      padding-bottom: 80px; /* Space for the fixed chat input */
+    }
+  }
+}
